@@ -74,8 +74,12 @@ public class App{
 
 
         long epoch = (long) Double.parseDouble(timeStamp);
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        String date = sdf.format(new Date (epoch/1000000)); 
+        //SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("HH-mm:SS+01:00");
+        
+        //String date = sdf.format(new Date (epoch/1000000)); 
+        String date = sdf1.format(new Date (epoch/1000000)) + "T" + sdf2.format(new Date (epoch/1000000)); 
         return date;
     }
     public static void main(String[] args) {
@@ -100,7 +104,7 @@ public class App{
         Property xsd = model.createProperty("http://www.w3.org/2001/XMLSchema#");
         */
 
-       String fileToRead = "sensor-measurement-one-day.csv";
+       String fileToRead = "sensor_measures_one_day_sample.csv";
 
        try{
            BufferedReader reader = new BufferedReader(new FileReader(fileToRead));
@@ -110,7 +114,8 @@ public class App{
            
            while((line = reader.readLine()) != null){
                 value = value + 1;
-                if(value == 10000)
+                //if(value == 10000)
+                if(value == 10)
                     break;
                 if (line.isEmpty()) 
                     continue;
@@ -131,21 +136,24 @@ public class App{
                 Resource sosaResource = model.createResource("Observation/" + value);
                 
                 model.add(sosaResource, model.createProperty(rdf + "type"), model.createProperty(sosa + "Observation"));
-                model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("temperature"));
-                model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("humidity"));
-                model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("luminosity"));
+                //model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("temperature"));
+                //model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("humidity"));
+                //model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("luminosity"));
                 model.add(sosaResource, model.createProperty(sosa + "hasFeatureOfInterest"), model.createProperty(sensor.get("location")));
                 model.add(sosaResource, model.createProperty(sosa + "madeBySensor"), model.createProperty("sensor/" + sensor.get("id")));
                 
                 if(!sensor.get("temperature").equals("")){
+                    model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("temperature"));
                     String tempUnit = om + "CelsiusTemperatureUnit";
                     createNode(tempUnit , sensor.get("temperature") , value);
                 }
                 if(!sensor.get("humidity").equals("")){
+                    model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("humidity"));
                     String humUnit = om + "gramPerKilogram";
                     createNode(humUnit, sensor.get("humidity") , value);
                 }
                 if(!sensor.get("luminosity").equals("")){
+                    model.add(sosaResource, model.createProperty(sosa + "observedProperty"), model.createProperty("luminosity"));
                     String lumUnit = om + "LuminousFluxUnit";
                     createNode(lumUnit , sensor.get("luminosity") , value);
                 }
@@ -172,7 +180,7 @@ public class App{
             exception.printStackTrace();
         }
 
-        storeToFuseki(model);
+        //storeToFuseki(model);
         //System.out.println(model);
         model.write(System.out, "turtle");
 
